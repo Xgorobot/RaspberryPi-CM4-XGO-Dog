@@ -60,7 +60,8 @@ MENU_ITEMS = [
         ("wifi_set", "13vision", "wifi_set", la["DEMOEN"]["WIFISET"]),
         ("language", "14vision", "language", la["DEMOEN"]["LANGUAGE"]),
         ("volume", "15vision", "volume", la["DEMOEN"]["VOLUME"]),
-        ("device", "16vision", "device", la["DEMOEN"]["DEVICE"])
+        ("device", "16vision", "device", la["DEMOEN"]["DEVICE"]),
+        ("gpt_cmd", "17vision", "gpt_cmd", la["DEMOEN"]["GPTCMD"])
     ]
 
 SELECT_BOX = [80, 68]
@@ -411,11 +412,13 @@ while True:
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "volume":
                 os.system("python3 ./demos/volume.py")
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "xiaozhi":
-                os.system("sudo -u pi python ./demos/xiaozhi/xiaozhi.py")
+                os.system("sudo -u pi python ./demos/xiaozhi_test/main.py")
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "pose_dog":
                 os.system("python3 ./demos/pose_dog.py")
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "group":
                 os.system("python3 ./demos/group.py")
+            elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "gpt_cmd":
+                os.system("python3 ./demos/EI/ei.py")
             print("program done")
             draw_title_bar(MENU_CURRENT_SELECT)
         except BaseException as e:
