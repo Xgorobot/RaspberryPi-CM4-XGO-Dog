@@ -14,7 +14,7 @@ RECORD_SECONDS = 600  # 最大录音时长
 SAVE_FILE = "recorded_audio.wav"
 START_THRESHOLD = 70000  # 开始录音的音量阈值
 END_THRESHOLD = 40000  # 停止录音的音量阈值
-ENDLAST = 10
+ENDLAST = 20
 
 
 def calculate_volume(data):
