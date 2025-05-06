@@ -298,10 +298,10 @@ def adaptive_turn(yaw):
 
 p = pyaudio.PyAudio()
 #-Record parameter-#
-CHUNK = 512
+CHUNK = 1024
 FORMAT = pyaudio.paInt16
 CHANNELS = 1
-RATE = 8000
+RATE = 16000
 stream = p.open(format=FORMAT,
                     channels=CHANNELS,
                     rate=RATE,
