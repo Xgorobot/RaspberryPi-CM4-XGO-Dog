@@ -13,3 +13,11 @@ https://docs.qq.com/sheet/DSEJ3eUpXTWxJZW9n?tab=d0t3bb
 
 ### 小智
 直接通过lite狗头运行，终端运行可能会有问题，声音输出有时候会卡顿
+
+## 5.6
+### 所有功能都添加到UI
+新增智能体的图标到pics
+### 智能体
+代码在demos/EI/coze.py 看一下代码最前面的注释
+### 巡线功能
+代码在demos/follow_line.py, 可能受光照影响比较明显，如有问题，分辨一下是识别问题还是运动问题，可视化显示有明显滞后但不影响。
