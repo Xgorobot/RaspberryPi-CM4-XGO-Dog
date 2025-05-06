@@ -10,6 +10,7 @@ language_recognize.py中也有一个密钥需要配置
 '''
 from PIL import Image, ImageDraw, ImageFont
 import xgoscreen.LCD_2inch as LCD_2inch
+import logging
 display = LCD_2inch.LCD_2inch()
 display.clear()
 splash_theme_color = (15, 21, 46)
@@ -55,7 +56,7 @@ def model_output(content):
         7. name:attitude
            - [direction,data], direction取值为'r','p','y' ,data的单位是度，沿X轴正时针旋转为正数，0表示回到初始位置，沿着X逆时针旋转为负数，取值范围是[-20,20]mm，y轴和z轴旋转运动同理。
         8. name:arm
-           - [arm_x, arm_z],arm_x取值范围是[-80,155]和arm_z的取值范围是[-95，155] 
+           - [arm_x, arm_z],arm_x取值范围是[-80,155]和arm_z的取值范围是[-95，155]，是机械臂的相关动作
         9. name:claw
            - pos,取值是0-255，其中0表示夹爪完全张开，255表示夹爪完全闭合。          
         10. name:imu
@@ -72,12 +73,17 @@ def model_output(content):
         - 如果未指定移动距离，默认移动距离为 `30`。  
         - 如果未指定转动角度，默认转动角度为 `90`。 
         - 招手为打招呼动作。
+        - 机械b 就是机械臂
        name是指方法名字，后面是需要传入的参数以及参数规则,多个参数时需要以列表形式给出
        返回结果以'['作为开始，以']'作为结束,下面我将给出几个例子
        前进30，跳个舞，打个招呼然后退出应返回[['x', 30], [action, '跳舞'], [action, '招手'], ['退出']]
         退出退出退出应返回[['退出']]
         什么前进请说左转应返回[['重试']], ['x', 30], ['重试'],['turn', 90]]
-        请严格按照上述规则处理输入内容，并返回结果列表。
+        沿x轴旋转，沿x轴运动都应返回['action','沿x转动']
+        沿y轴旋转，沿y轴运动都应返回['action','沿y转动']
+        沿z轴旋转，沿z轴运动都应返回['action','沿z转动']
+        调整机械臂x为80，可以返回['arm',[80,100]]
+        请严格按照上述规则处理输入内容，并返回结果列表,除了xyz其他我说的全是中文。
     '''
     prompt = prompt + content
     # Create a dialog request
@@ -200,7 +206,7 @@ def wake_up(p, rate, chunk_size):
 
 action_id = {'趴下':1, '站起':2 ,'匍匐前进':3 ,'转圈':4, '原地踏步':5 ,'蹲起':6 ,'沿x转动':7 ,'沿y转动':8 ,'沿z转动':9 ,'三轴转动': 10,'撒尿': 11,'坐下':12, '招手':13,'伸懒腰': 14,
              '波浪运动':15 ,'摇摆运动':16 ,'求食':17 ,'找食物':18 ,'握手': 19, '展示机械臂': 20, '俯卧撑': 21, '张望':22, '跳舞':23, '调皮':24}
-time_list = [3, 3, 5, 5, 4, 4, 4, 4, 4, 7, 7, 5,7, 10, 6, 6, 6, 6, 10, 9, 8, 8, 6, 7]
+time_list = [3, 3, 5, 5, 4, 4, 4, 4, 4, 7, 7, 5, 7, 10, 6, 6, 6, 6, 10, 9, 8, 8, 6, 7]
 
 import os, re
 from xgolib import XGO
@@ -497,8 +503,43 @@ while True:
         clear_area=False
     )
     display.ShowImage(splash)
-    result = model_output(content=content)
-    print(result)
+    try:
+        result = model_output(content=content)
+        logging.warning(result)
+    except Exception as e:
+        print(f'发生未知错误: {e}')
+        splash = Image.new("RGB", (display.height, display.width), splash_theme_color)
+        draw = ImageDraw.Draw(splash)
+        text_color = (255, 255, 255)
+        color = (102, 178, 255)
+        gray_color = (128, 128, 128)
+        rectangle_x = (display.width - 120) // 2  # 矩形条居中的x坐标
+        rectangle_y = 50  # 矩形条y坐标
+        rectangle_width = 200
+        rectangle_height = 30
+        draw.rectangle((rectangle_x, rectangle_y, rectangle_x + rectangle_width, rectangle_y + rectangle_height),
+                       fill=color)
+        draw.text((rectangle_x + 70, rectangle_y + 5), '识别错误', fill=text_color, font=font2)
+        rectangle_x = (display.width - 120) // 2  # 矩形条居中的x坐标
+        rectangle_y = 100  # 矩形条y坐标
+        rectangle_width = 200
+        rectangle_height = 100
+        draw.rectangle((rectangle_x, rectangle_y, rectangle_x + rectangle_width, rectangle_y + rectangle_height),
+                       fill=gray_color)
+        lcd_draw_string(
+            draw,
+            x=70,
+            y=105,
+            text="指令识别错误，请重试",
+            color=(255, 255, 255),
+            font_size=16,
+            max_width=190,
+            max_lines=5,
+            clear_area=False
+        )
+        display.ShowImage(splash)
+        time.sleep(2)
+        continue
     try:
         for i in result:
           print(i[0])
@@ -518,16 +559,18 @@ while True:
             time.sleep(0.5)
           elif i[0] == 'action':
             dog.action(int(action_id[i[1]]))
-            time.sleep(int(time_list[int(action_id[i[1]])]-1))
+            time.sleep(int(time_list[int(action_id[i[1]])-1]))
             dog.stop()
             time.sleep(0.5)
           elif i[0] == 'pace':
             dog.pace(i[1])
             time.sleep(0.2)
           elif i[0] == 'translation':
+            logging.warning(f'沿着{i[1][0]}轴平移{i[1][1]}')
             dog.translation(i[1][0], i[1][1])
             time.sleep(1)
           elif i[0] == 'attitude':
+            logging.warning(f'沿着{i[1][0]}轴旋转{i[1][1]}')
             dog.attitude(i[1][0], i[1][1])
             time.sleep(1)
           elif i[0] == 'arm':
