@@ -61,7 +61,10 @@ MENU_ITEMS = [
         ("language", "14vision", "language", la["DEMOEN"]["LANGUAGE"]),
         ("volume", "15vision", "volume", la["DEMOEN"]["VOLUME"]),
         ("device", "16vision", "device", la["DEMOEN"]["DEVICE"]),
-        ("gpt_cmd", "17vision", "gpt_cmd", la["DEMOEN"]["GPTCMD"])
+        ("gpt_cmd", "17vision", "gpt_cmd", la["DEMOEN"]["GPTCMD"]),
+        ("follow_line", "18vision", "follow_line", la["DEMOEN"]["FOLLOWLINE"]),
+        ("agent", "19vision", "agent", la["DEMOEN"]["AGENT"]),
+        ("ball_catch", "19vision", "ball_catch", la["DEMOEN"]["CATCH"])
     ]
 
 SELECT_BOX = [80, 68]
@@ -419,6 +422,12 @@ while True:
                 os.system("python3 ./demos/group.py")
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "gpt_cmd":
                 os.system("python3 ./demos/EI/ei.py")
+            elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "follow_line":
+                os.system("python3 ./demos/follow_line.py")
+            elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "agent":
+                os.system("python3 ./demos/EI/coze.py")
+            elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "ball_catch":
+                os.system("python3 ./demos/ball.py")
             print("program done")
             draw_title_bar(MENU_CURRENT_SELECT)
         except BaseException as e:
