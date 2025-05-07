@@ -21,3 +21,11 @@ https://docs.qq.com/sheet/DSEJ3eUpXTWxJZW9n?tab=d0t3bb
 代码在demos/EI/coze.py 看一下代码最前面的注释
 ### 巡线功能
 代码在demos/follow_line.py, 可能受光照影响比较明显，如有问题，分辨一下是识别问题还是运动问题，可视化显示有明显滞后但不影响。
+
+## 2025.5.7 日志
+### 修改UI
+在demoen.py和language都进行了修改，此demoen中的小智功能和EI分别指向xiaozhi_test,coze。
+### 修改小智main
+修改了xiaozhi_test/main.py,让小智嵌入demos中也可以正常工作
+### 测试结果
+新小智、巡线、智能体都已测试，具体问题和报错请参考文档。
