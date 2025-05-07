@@ -87,7 +87,8 @@
         "GPTFREE":"Q&A",
         "XIAOZHI":"XIAOZHI",
         "BALL":"BALL",
-        "JOYSTICK":"Handle"
+        "JOYSTICK":"Handle",
+        "LINE":"Linepatrol"
         
     }
 }
