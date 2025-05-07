@@ -29,3 +29,5 @@ https://docs.qq.com/sheet/DSEJ3eUpXTWxJZW9n?tab=d0t3bb
 修改了xiaozhi_test/main.py,让小智嵌入demos中也可以正常工作
 ### 测试结果
 新小智、巡线、智能体都已测试，具体问题和报错请参考文档。
+### 增添功能
+增添了手柄控制的代码
