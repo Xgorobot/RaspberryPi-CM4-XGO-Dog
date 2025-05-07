@@ -85,7 +85,8 @@
         "GPTFREE":"自由问答",
         "XIAOZHI":"小智",
         "BALL":"小球抓取",
-        "JOYSTICK":"手柄控制"
+        "JOYSTICK":"手柄控制",
+        "LINE":"巡线跟踪"
 
     }
 }
