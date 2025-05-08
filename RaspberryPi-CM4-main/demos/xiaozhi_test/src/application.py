@@ -311,12 +311,35 @@ class Application:
             return False
 
     def _handle_output_audio(self):
-        """处理音频输出"""
+        """处理音频输出，优化卡顿问题"""
         if self.device_state != DeviceState.SPEAKING:
             return
+        
+        try:
+            # 使用单独的线程播放音频
+            if not hasattr(self, '_audio_thread') or not self._audio_thread.is_alive():
+                self._audio_thread = threading.Thread(
+                    target=self._play_audio_thread,
+                    daemon=True
+                )
+                self._audio_thread.start()
+        except Exception as e:
+            logger.error(f"音频播放线程启动失败: {e}")
+            self.is_tts_playing = False
+    
+    def _play_audio_thread(self):
         self.is_tts_playing = True
-        self.audio_codec.play_audio()
-
+        try:
+            start_time = time.time()
+            self.audio_codec.play_audio()
+            elapsed = time.time() - start_time
+            # 如果播放太快，添加微小延迟
+            if elapsed < 0.1:  # 100ms
+                time.sleep(0.05)
+        except Exception as e:
+            logger.error(f"音频播放失败: {e}")
+        finally:
+            self.is_tts_playing = False
     def _on_network_error(self, error_message=None):
         """网络错误回调"""
         if error_message:
@@ -542,7 +565,10 @@ class Application:
             except Exception as e:
                 logger.error(f"音频输出事件触发器错误: {e}")
 
-            time.sleep(0.02)  # 稍微延长检查间隔
+            # 根据帧大小计算合理的检查间隔
+            frame_duration = AudioConfig.FRAME_DURATION / 1000  # 转换为秒
+            sleep_time = max(0.005, min(0.02, frame_duration * 0.5))  # 适当调整
+            time.sleep(sleep_time)
 
     async def _on_audio_channel_closed(self):
         """音频通道关闭回调"""
