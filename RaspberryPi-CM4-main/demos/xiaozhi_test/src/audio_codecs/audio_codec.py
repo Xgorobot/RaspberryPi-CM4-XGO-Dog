@@ -5,13 +5,12 @@ import pyaudio
 import opuslib
 from src.constants.constants import AudioConfig
 import time
-import sys
+import sys,os
 import threading
+from collections import deque
 
 from src.utils.logging_config import get_logger
-
 logger = get_logger(__name__)
-
 
 class AudioCodec:
     """音频编解码器类，处理音频的录制和播放"""
@@ -28,7 +27,15 @@ class AudioCodec:
         self._is_input_paused = False  # 添加输入流暂停状态标志
         self._input_paused_lock = threading.Lock()  # 添加线程锁
         self._stream_lock = threading.Lock()  # 添加流操作锁
-
+        # 新增录音相关属性
+        self._recording_buffer = deque(maxlen=int(AudioConfig.INPUT_SAMPLE_RATE * 2 / AudioConfig.INPUT_FRAME_SIZE))  # 2秒的缓冲区
+        self._is_recording = False
+        self._last_voice_time = 0
+        self._silence_threshold = 500  # 静音阈值，可根据环境调整
+        self._min_voice_duration = 0.1  # 最小语音持续时间(秒)
+        self._silence_timeout = 2.0  # 静音超时时间(秒)
+        self._recording_lock = threading.Lock()
+        
         self._initialize_audio()
 
     def _initialize_audio(self):
@@ -111,6 +118,24 @@ class AudioCodec:
         logger.error("未找到可用的音频设备")
         raise RuntimeError("没有可用的音频设备")
 
+    def _is_voice_active(self, audio_data):
+        """检测音频数据中是否有语音活动"""
+        if not audio_data or len(audio_data) == 0:
+            return False
+            
+        audio_array = np.frombuffer(audio_data, dtype=np.int16)
+        
+        # 检查是否为全零或无效数据
+        if np.all(audio_array == 0) or not np.isfinite(audio_array).all():
+            return False
+        
+        # 计算RMS值，添加小量避免除零
+        squared = np.square(audio_array.astype(np.float64))
+        mean_squared = np.mean(squared)
+        rms = np.sqrt(mean_squared + 1e-10)  # 添加小量避免sqrt(0)
+        
+        return rms > self._silence_threshold
+
     def pause_input(self):
         """暂停输入流但不关闭它"""
         with self._input_paused_lock:
@@ -151,11 +176,11 @@ class AudioCodec:
 
                 # 检查是否有数据可读
                 available = self.input_stream.get_read_available()
-                logger.warning(f'可用数据量{available}')
                 if available <= 0:
                     logger.warning("没有数据可读")
                     if available <= 0:
                         logger.warning("没有数据可读，尝试清理部分缓冲区")
+                        
                         try:
                             buffer_size = 3084
                             self.input_stream.read(buffer_size, exception_on_overflow=False)
@@ -171,20 +196,6 @@ class AudioCodec:
                         except Exception as e:
                             logger.warning(f"清理缓冲区时出错: {e}")
                         return None
-
-
-                # 如果缓冲区累积了太多数据，清空一部分以避免延迟
-                # 降低阈值，以避免在大帧长度下清除太多数据
-                # if available > AudioConfig.INPUT_FRAME_SIZE * 2:
-                #     # 降低清除量，保留更多最近的数据
-                #     logger.warning('降低清除量，保留更多最近的数据')
-                #     to_skip = available - (AudioConfig.INPUT_FRAME_SIZE * 1.5)
-                #     if to_skip > 0:
-                #         self.input_stream.read(
-                #             int(to_skip),
-                #             exception_on_overflow=False
-                #         )
-
                 # 读取音频数据 - 确保只读取一个完整帧
                 try:
                     data = self.input_stream.read(
@@ -194,7 +205,6 @@ class AudioCodec:
                 except OSError as e:
                     if "Input overflowed" in str(e):
                         logger.warning("输入缓冲区溢出，尝试恢复")
-                        # 溢出时，完全重置输入流以确保干净的状态
                         self._reinitialize_input_stream()
                     else:
                         logger.warning(f"读取音频数据时出错: {e}")
@@ -210,37 +220,67 @@ class AudioCodec:
                         f"音频数据大小异常: {len(data)} bytes, "
                         f"预期: {expected_size} bytes"
                     )
-                    # 发现异常大小时，尝试重置输入流
                     self._reinitialize_input_stream()
                     return None
 
-                # 帧速率稳定性检查 - 确保音频帧大小一致
-                # 这有助于防止在多次对话后的音频速度异常
-                try:
-                    # 计算帧持续时间 (毫秒)
-                    frame_duration_ms = 1000 * len(data) / (2 * AudioConfig.INPUT_SAMPLE_RATE)
-                    # 检查帧持续时间是否接近预期值
-                    if abs(frame_duration_ms - AudioConfig.FRAME_DURATION) > 5:  # 允许5ms误差
-                        logger.warning(
-                            f"帧持续时间异常: {frame_duration_ms:.2f}ms, "
-                            f"预期: {AudioConfig.FRAME_DURATION}ms"
-                        )
-                        # 如果发现持续时间异常，可能需要重新初始化
-                        if abs(frame_duration_ms - AudioConfig.FRAME_DURATION) > 10:  # 严重偏差
-                            self._reinitialize_input_stream()
-                            return None
-                except Exception as e:
-                    logger.warning(f"帧稳定性检查出错: {e}")
+                # 语音活动检测
+                is_voice = self._is_voice_active(data)
+                current_time = time.time()
 
-                # 编码音频数据
-                try:
-                    return self.opus_encoder.encode(
-                        data,
-                        AudioConfig.INPUT_FRAME_SIZE
-                    )
-                except Exception as e:
-                    logger.warning(f"编码音频数据时出错: {e}")
-                    return None
+                with self._recording_lock:
+                    # 将数据添加到缓冲区
+                    self._recording_buffer.append((data, current_time, is_voice))
+                    
+                    # 检测语音开始
+                    if not self._is_recording and is_voice:
+                        # 检查是否满足最小语音持续时间
+                        voice_duration = 0
+                        for _, _, v in reversed(list(self._recording_buffer)):
+                            if not v:
+                                break
+                            voice_duration += AudioConfig.INPUT_FRAME_SIZE / AudioConfig.INPUT_SAMPLE_RATE
+                        
+                        if voice_duration >= self._min_voice_duration:
+                            self._is_recording = True
+                            logger.info("检测到语音，开始录音")
+                    
+                    # 更新最后检测到语音的时间
+                    if is_voice:
+                        self._last_voice_time = current_time
+                    
+                    # 检查是否应该结束录音
+                    if self._is_recording and (current_time - self._last_voice_time) > self._silence_timeout:
+                        self._is_recording = False
+                        logger.info(f"检测到静音超过{self._silence_timeout}秒，结束录音")
+                        
+                        # 返回缓冲区中的所有数据
+                        encoded_data = bytearray()
+                        for buf_data, _, _ in self._recording_buffer:
+                            try:
+                                encoded_chunk = self.opus_encoder.encode(
+                                    buf_data,
+                                    AudioConfig.INPUT_FRAME_SIZE
+                                )
+                                encoded_data.extend(encoded_chunk)
+                            except Exception as e:
+                                logger.warning(f"编码音频数据时出错: {e}")
+                        
+                        # 清空缓冲区
+                        self._recording_buffer.clear()
+                        return bytes(encoded_data) if encoded_data else None
+                    
+                    # 如果正在录音，返回当前帧
+                    if self._is_recording:
+                        try:
+                            return self.opus_encoder.encode(
+                                data,
+                                AudioConfig.INPUT_FRAME_SIZE
+                            )
+                        except Exception as e:
+                            logger.warning(f"编码音频数据时出错: {e}")
+                            return None
+
+                return None
 
         except Exception as e:
             logger.warning(f"读取音频输入时出错: {e}")
