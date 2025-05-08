@@ -60,7 +60,7 @@ class MychanicalDog(Thing):
                           lambda: self.action)
         self.add_property("pace_mode", "机械狗的迈步频率",
                           lambda: self.pace)
-        self.add_property("claw", "机械狗的机械臂夹爪开合程度,0对应完全张开也就是机械臂完全打开，爪子打开，255对应完全闭合机械臂完全闭合，爪子闭合",
+        self.add_property("claw", "机械狗的机械臂夹爪开合程度,0对应完全张开，255对应完全闭合",
                           lambda: self.claw)
         self.add_property("gait", "机械狗的步态设置",
                           lambda: self.gait_type)
@@ -181,61 +181,22 @@ class MychanicalDog(Thing):
             "claw",
             "机械狗的机械臂夹爪开合",
             [
-                Parameter('claw', '"机械狗的机械臂夹爪开合程度取值范围(0-255之间的数字),0对应完全张开也就是机械臂完全打开，爪子打开，255对应完全闭合机械臂完全闭合，爪子闭合"', ValueType.NUMBER, True)
+                Parameter('claw', '夹爪开合(0-255之间的数字),0对应完全张开，255对应完全闭合', ValueType.NUMBER, True)
             ],
             lambda params: self._claw(params["claw"].get_value())
         )
 
         self.add_method(
-            "action_1",
+            "action",
             "机械狗执行预设动作",
             [
                 Parameter('action',
-             '取值范围为1-6,分别对应[趴下,站起,匍匐前进,转圈,原地踏步,蹲起]。举例说明，即趴下的id为1,匍匐前进为3,蹲起为6',
+             '取值范围为1-24和128-130，其中1-24分别对应[趴下,站起,匍匐前进,转圈,原地踏步,蹲起,沿x转动,沿y转动,沿z转动,三轴转动,撒尿,坐下,招手,伸懒腰,波浪运动,摇摆运动,求食,找食物,握手,展示机械臂          ,俯卧撑，张望，跳舞，调皮]。举例说明，即趴下的id为1,匍匐前进为3,求食为18,而128-130分别对应[向上抓取，向中抓取，向下抓取],其中向上抓取对应128，向中抓取对应129，向下抓取对应130',
              ValueType.NUMBER,
              True)
             ],
-            lambda params: self._action_1(params["action"].get_value())
+            lambda params: self._action(params["action"].get_value())
         )
-
-        self.add_method(
-            "action_2",
-            "机械狗执行预设动作",
-            [
-                Parameter('action',
-             '取值范围为7-12,分别对应[沿x转动,沿y转动,沿z转动,三轴转动,撒尿,坐下]。举例说明，即沿x转动的id为7,三轴转动为10，坐下为12',
-             ValueType.NUMBER,
-             True)
-            ],
-            lambda params: self._action_2(params["action"].get_value())
-        )
-
-
-        self.add_method(
-            "action_3",
-            "机械狗执行预设动作",
-            [
-                Parameter('action',
-             '取值范围为13-18,分别对应[招手,伸懒腰,波浪运动,摇摆运动,求食,找食物]。举例说明，即招手的id为13,摇摆运动id为16,求食为17',
-             ValueType.NUMBER,
-             True)
-            ],
-            lambda params: self._action_3(params["action"].get_value())
-        )
-
-
-        self.add_method(
-            "action_4",
-            "机械狗执行预设动作",
-            [
-                Parameter('action',
-             '取值范围为19-24,分别对应[握手,展示机械臂,俯卧撑，张望，跳舞，调皮]。举例说明，即握手的id为19,俯卧撑为21,调皮为24',
-             ValueType.NUMBER,
-             True)
-            ],
-            lambda params: self._action_4(params["action"].get_value())
-        )
-
 
         self.add_method(
             "gait",
@@ -452,61 +413,20 @@ class MychanicalDog(Thing):
             "status": "success",
             "message": f"机械狗现在的机械臂开合为{self.claw}"
         }
-    def _action_1(self, action):
+    def _action(self, action):
         self.stop()
         self.last_update_time = int(time.time())
-        time_list = [3, 3, 5, 5, 4, 4, 4, 4, 4, 7, 7, 5,7, 10, 6, 6, 6, 6, 10, 9, 8, 8, 6, 7]
-        action_list = ['趴下', '站起', '匍匐前进', '转圈', '原地踏步', '蹲起', '沿x转动', '沿y转动', '沿z转动', '三轴转动', '撒尿', '坐下', '招手', '伸懒腰', '波浪运动', '摇摆运动', '求食', '找食物', '握手', '展示机械臂', '俯卧撑', '张望', '跳舞', '调皮']
-        self.action = action_list[action-1]
-        self.dog.action(action)
-        time.sleep(time_list[action-1])
-        self.dog.reset()
-
-        print(f"[IoT设备] 机械狗正在完成预设动作{self.action}")
-        return {
-            "status": "success",
-            "message": f"机械狗已经完成预设动作{self.action},并且停止"
-        }
-    def _action_2(self, action):
-        self.stop()
-        self.last_update_time = int(time.time())
-        time_list = [3, 3, 5, 5, 4, 4, 4, 4, 4, 7, 7, 5,7, 10, 6, 6, 6, 6, 10, 9, 8, 8, 6, 7]
-        action_list = ['趴下', '站起', '匍匐前进', '转圈', '原地踏步', '蹲起', '沿x转动', '沿y转动', '沿z转动', '三轴转动', '撒尿', '坐下', '招手', '伸懒腰', '波浪运动', '摇摆运动', '求食', '找食物', '握手', '展示机械臂', '俯卧撑', '张望', '跳舞', '调皮']
-        self.action = action_list[action-1]
-        self.dog.action(action)
-        time.sleep(time_list[action-1])
-        self.dog.reset()
-
-        print(f"[IoT设备] 机械狗正在完成预设动作{self.action}")
-        return {
-            "status": "success",
-            "message": f"机械狗已经完成预设动作{self.action},并且停止"
-        }
-    def _action_3(self, action):
-        self.stop()
-        self.last_update_time = int(time.time())
-        time_list = [3, 3, 5, 5, 4, 4, 4, 4, 4, 7, 7, 5,7, 10, 6, 6, 6, 6, 10, 9, 8, 8, 6, 7]
-        action_list = ['趴下', '站起', '匍匐前进', '转圈', '原地踏步', '蹲起', '沿x转动', '沿y转动', '沿z转动', '三轴转动', '撒尿', '坐下', '招手', '伸懒腰', '波浪运动', '摇摆运动', '求食', '找食物', '握手', '展示机械臂', '俯卧撑', '张望', '跳舞', '调皮']
-        self.action = action_list[action-1]
-        self.dog.action(action)
-        time.sleep(time_list[action-1])
-        self.dog.reset()
-
-        print(f"[IoT设备] 机械狗正在完成预设动作{self.action}")
-        return {
-            "status": "success",
-            "message": f"机械狗已经完成预设动作{self.action},并且停止"
-        }
-    def _action_4(self, action):
-        self.stop()
-        self.last_update_time = int(time.time())
-        time_list = [3, 3, 5, 5, 4, 4, 4, 4, 4, 7, 7, 5,7, 10, 6, 6, 6, 6, 10, 9, 8, 8, 6, 7]
-        action_list = ['趴下', '站起', '匍匐前进', '转圈', '原地踏步', '蹲起', '沿x转动', '沿y转动', '沿z转动', '三轴转动', '撒尿', '坐下', '招手', '伸懒腰', '波浪运动', '摇摆运动', '求食', '找食物', '握手', '展示机械臂', '俯卧撑', '张望', '跳舞', '调皮']
-        self.action = action_list[action-1]
-        self.dog.action(action)
-        time.sleep(time_list[action-1])
-        self.dog.reset()
-
+        time_list = [0] * 131  
+        time_list[1:25] = [3, 3, 5, 5, 4, 4, 4, 4, 4, 7, 7, 5, 7, 10, 6, 6, 6, 6, 10, 9, 8, 8, 6, 7]
+        time_list[128:131] = [10, 10, 10]  
+        action_list = ['趴下', '站起', '匍匐前进', '转圈', '原地踏步', '蹲起', '沿x转动', '沿y转动', '沿z转动', '三轴转动', '撒尿', '坐下', '招手', '伸懒腰', '波浪运动', '摇摆运动', '求食', '找食物', '握手', '展示机械臂', '俯卧撑', '张望', '跳舞', '调皮','向上抓取','向中抓取','向下抓取']
+        if  1 <= action <= 24:
+            self.action = action_list[action-1]
+            self.dog.action(action)
+            #time.sleep(time_list[action-1])
+        else :
+            self.action =action_list[action-104]
+            self.dog.action(action)
         print(f"[IoT设备] 机械狗正在完成预设动作{self.action}")
         return {
             "status": "success",
