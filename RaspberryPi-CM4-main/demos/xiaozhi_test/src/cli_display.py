@@ -9,7 +9,8 @@ background_image_path = "/home/pi/RaspberryPi-CM4-main/demos/xiaozhi_test/src/xi
 splash = Image.open(background_image_path)
 draw = ImageDraw.Draw(splash)
 display.ShowImage(splash)
-
+import os
+from src.auto_platform import play_command
 def lcd_draw_string(
         splash,
         x,
@@ -430,6 +431,12 @@ class CliDisplay(BaseDisplay):
         status_changed = (
             self.current_text != self.last_text 
         )
+        status_changed_status = (
+            self.current_status != self.last_status
+        )
+        if status_changed_status and self.current_status == '聆听中...':
+            os.system(play_command + " /home/pi/RaspberryPi-CM4-main/ding.wav")
+
 
         if status_changed:
             print("\n=== 当前状态 ===")
