@@ -6,6 +6,27 @@ import subprocess  # 新增
 from src.application import Application
 from src.utils.logging_config import get_logger
 
+from PIL import Image, ImageDraw, ImageFont
+import xgoscreen.LCD_2inch as LCD_2inch
+splash_theme_color = (15, 21, 46)
+# Display Init
+display = LCD_2inch.LCD_2inch()
+display.clear()
+background_image_path = "/home/pi/RaspberryPi-CM4-main/demos/xiaozhi_test/src/xiaozhi.png"  # 替换为你的图片路径
+splash = Image.open(background_image_path)
+draw = ImageDraw.Draw(splash)
+text_color = (255, 255, 255)
+color = (102, 178, 255)
+gray_color = (128, 128, 128)
+rectangle_x = (display.width - 120) // 2  # 矩形条居中的x坐标
+rectangle_y = 50  # 矩形条y坐标
+rectangle_width = 200
+rectangle_height = 30
+draw.rectangle((rectangle_x, rectangle_y, rectangle_x + rectangle_width, rectangle_y + rectangle_height), fill=color)
+font2 = ImageFont.truetype("/home/pi/model/msyh.ttc", 16)
+draw.text((rectangle_x + 70, rectangle_y + 5), '启动中...', fill=text_color, font=font2)
+display.ShowImage(splash)
+
 logger = get_logger(__name__)
 
 def kill_pulseaudio():
