@@ -50,3 +50,10 @@ https://docs.qq.com/sheet/DSEJ3eUpXTWxJZW9n?tab=d0t3bb
 这部分我更改了一点application.py的_audio_output_event_trigger（）和_handle_output_audio（）两个函数，但是无明显改善，具体是否是这里代码的原因无法下定论，我只是试着改了一下。
 2. 开启加载时间太长
 3. 开启会先聆听、未连接、连接，此过程，待优化，不过不急
+
+## 5.10
+### 小智
+音频卡明显改善，可能偶尔会出现卡顿的情况
+加入了“ding”的提示音
+“开启会先聆听、未连接、连接，此过程” 这个现象也做了优化
+启动界面做了更改
