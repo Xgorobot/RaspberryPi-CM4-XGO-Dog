@@ -1,4 +1,4 @@
-# Raspberry-CM4-XGO-Rider
+# Raspberry-CM4-XGO-DOG
 
 XGO-DOG，一个有趣的四足仿生机器狗。
 
