@@ -68,6 +68,6 @@ XGO-DOG一款具有十二自由度桌面级Al机器狗，背部搭载机械臂�
 感谢以下人员对项目的贡献:  
 刘鹏飞Robotics   
 jd3096
-张益龙 YiL Zhang 
-王云馨 KEENNESS19 
+YiL Zhang 
+KEENNESS19 
 如果你在使用本项目时遇到了问题，欢迎提交 Issues 或 Pull Requests！
