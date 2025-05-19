@@ -1,116 +1,124 @@
 import cv2
 import numpy as np
-import mediapipe as mp
-from numpy import linalg
-from uiutils import *
+import time
+from uiutils import Button, dog, display
+from PIL import Image
 
 button = Button()
+red = (255, 0, 0)
+green = (0, 255, 0)
+blue = (0, 0, 255)
+yellow = (255, 255, 0)
 
-fm = get_dog_type_cache()
-result = fm[0]
-dog_type = result
-dog.reset()
+color_lower = [np.array([0, 160, 100]), np.array([160, 160, 100])]  
+color_upper = [np.array([10, 255, 255]), np.array([179, 255, 255])]
+mode = 1
 
-red=(255,0,0)
-green=(0,255,0)
-blue=(0,0,255)
-yellow=(255,255,0)
+# Skin detection parameters
+skin_lower = np.array([0, 133, 77])  
+skin_upper = np.array([255, 173, 127])
 
-color_lower = np.array([0, 43, 46])
-color_upper = np.array([10, 255, 255])
-g_mode=1
-cm=1
-mode=1
+font = cv2.FONT_HERSHEY_SIMPLEX
 
-font = cv2.FONT_HERSHEY_SIMPLEX 
-cap=cv2.VideoCapture(0)
-cap.set(3,320)
-cap.set(4,240)
+# Initialize VideoCapture with color mode
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 
 def change_color():
-    global color_lower,color_upper,mode
-    if mode==4:
-        mode=1
-    else:
-        mode+=1
-    if mode==1:  #red
-        color_lower = np.array([0, 43, 46])
-        color_upper = np.array([10, 255, 255])
-    elif mode==2: #green
-        color_lower = np.array([35, 43, 46])
-        color_upper = np.array([77, 255, 255])
-    elif mode==3:   #blue
-        color_lower = np.array([100, 43, 46])
-        color_upper = np.array([124, 255, 255])
-    elif mode==4:   #yellow
-        color_lower = np.array([26, 43, 46])
-        color_upper = np.array([34, 255, 255])
+    global color_lower, color_upper, mode
+    
+    color_ranges = [
+        ([np.array([0, 160, 100]), np.array([160, 160, 100])], 
+         [np.array([10, 255, 255]), np.array([179, 255, 255])]),
+        
+        ([np.array([40, 60, 75])], [np.array([77, 255, 255])]),
+      
+        ([np.array([100, 150, 100])], [np.array([120, 255, 255])]),
+    
+        ([np.array([28, 60, 46])], [np.array([34, 255, 255])])
+    ]
+    
+    mode = (mode % 4) + 1
+    color_lower, color_upper = color_ranges[mode - 1]
 
-
-if(not cap.isOpened()):
-    print("[camera.py:cam]:can't open this camera")
-
+# FPS counter
 t_start = time.time()
 fps = 0
 color_x = 0
 color_y = 0
 color_radius = 0
-while 1:
+
+while True:
     ret, frame = cap.read()
-    frame_ = cv2.GaussianBlur(frame,(5,5),0)                    
-    hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(hsv,color_lower,color_upper)  
-    mask = cv2.erode(mask,None,iterations=2)
-    mask = cv2.dilate(mask,None,iterations=2)
-    mask = cv2.GaussianBlur(mask,(3,3),0)     
-    cnts = cv2.findContours(mask.copy(),cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[-2] 
-    if g_mode == 1:
-        if len(cnts) > 0:
-            cnt = max (cnts, key = cv2.contourArea)
-            (color_x,color_y),color_radius = cv2.minEnclosingCircle(cnt)
-            if color_radius > 10:
-                cv2.circle(frame,(int(color_x),int(color_y)),int(color_radius),(255,0,255),2)  
-                value_x = color_x - 160
-                value_y = color_y - 120
-                rider_x=value_x
-                if value_x > 55:
-                    value_x = 55
-                elif value_x < -55:
-                    value_x = -55
-                if value_y > 75:
-                    value_y = 75
-                elif value_y < -75:
-                    value_y = -75
+    if not ret:
+        print("Failed to capture frame")
+        break
+    
+    # Ensure we have a 3-channel color image
+    if len(frame.shape) == 2:
+        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+    elif frame.shape[2] == 1:
+        frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+   
+    frame = cv2.flip(frame, 1)
+        
+    frame_ = cv2.GaussianBlur(frame, (5, 5), 0)
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    
+    if mode == 1: 
+        mask1 = cv2.inRange(hsv, color_lower[0], color_upper[0])
+        mask2 = cv2.inRange(hsv, color_lower[1], color_upper[1])
+        mask = cv2.bitwise_or(mask1, mask2)
+    else: 
+        mask = cv2.inRange(hsv, color_lower[0], color_upper[0])
+    
+    # Apply skin color filtering
+    ycbcr = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
+    skin_mask = cv2.inRange(ycbcr, skin_lower, skin_upper)
+    mask = cv2.bitwise_and(mask, cv2.bitwise_not(skin_mask))
+    
+    mask = cv2.erode(mask, None, iterations=2)
+    mask = cv2.dilate(mask, None, iterations=2)
+    
+    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    
+    if len(cnts) > 0:
+        cnt = max(cnts, key=cv2.contourArea)
+        (color_x, color_y), color_radius = cv2.minEnclosingCircle(cnt)
+        if color_radius > 5:
+            cv2.circle(frame, (int(color_x), int(color_y)), int(color_radius), (255, 0, 255), 2)
+            value_x = color_x - 160
+            value_y = color_y - 120
+            rider_x = value_x
+            value_x = np.clip(value_x, -55, 55)
+            value_y = np.clip(value_y, -75, 75)
+            
+            dog.attitude(['y', 'p'], [value_x / 15, value_y / 15])
 
-                dog.attitude(['y','p'],[-value_x/15, value_y/15])
+    # Display position and FPS
+    cv2.putText(frame, "X:%d, Y:%d" % (int(color_x), int(color_y)), (40, 40), font, 0.8, (0, 255, 255), 3)
+    
+    fps += 1
+    mfps = fps / (time.time() - t_start)
+    cv2.putText(frame, "FPS " + str(int(mfps)), (40, 80), font, 0.8, (0, 255, 255), 3)
 
-        else:
-            color_x = 0
-            color_y = 0
-            rider_x=9999
-        cv2.putText(frame, "X:%d, Y%d" % (int(color_x), int(color_y)), (40,40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,255), 3)
-        t_start = time.time()
-        fps = 0
-    else:
-        fps = fps + 1
-        mfps = fps / (time.time() - t_start)
-        cv2.putText(frame, "FPS " + str(int(mfps)), (40,40), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0,255,255), 3)
-    b,g,r = cv2.split(frame)
-    img = cv2.merge((r,g,b))
-    if mode==1:
-        cv2.rectangle(img, (290, 10), (320, 40), red, -1)
-    elif mode==2:
-        cv2.rectangle(img, (290, 10), (320, 40), green, -1)
-    elif mode==3:
-        cv2.rectangle(img, (290, 10), (320, 40), blue, -1)
-    elif mode==4:
-        cv2.rectangle(img, (290, 10), (320, 40), yellow, -1)
+    # Convert and display image
+    b, g, r = cv2.split(frame)
+    img = cv2.merge((r, g, b))
+    colors = [red, green, blue, yellow]
+    cv2.rectangle(img, (290, 10), (320, 40), colors[mode - 1], -1)
+    
     imgok = Image.fromarray(img)
-    display.ShowImage(imgok)
-    if (cv2.waitKey(1)) == ord('q'):
+    display.ShowImage(imgok)  
+    
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     if button.press_b():
         break
     if button.press_d():
         change_color()
+
 cap.release()
+dog.reset()

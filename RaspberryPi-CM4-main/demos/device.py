@@ -29,7 +29,7 @@ os_logo = Image.open("/home/pi/RaspberryPi-CM4-main/pics/os@2x.png")
 #Version Information
 fm1 = dog.read_firmware()
 fm2 = dog.read_lib_version()
-fm3 = "V3"
+fm3 = "V3.1"
 
 #Color Define
 splash_theme_color = (15, 21, 46)

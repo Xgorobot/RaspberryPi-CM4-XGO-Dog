@@ -31,7 +31,7 @@
     "NETWORK":{
         "NOQR":"No QR code detected",
         "SPACE":"QR has space",
-        "SUCCESS":"WIFI scan successful"
+        "SUCCESS":"WIFI scan successful. Exit in 3S."
     },
     "WIFISET":{
         "NOW":"Current Country:",
@@ -49,7 +49,7 @@
         "NOW":"Current language",
         "SET":"Language setting",
         "NoneType":"Language setting",
-        "SAVED":"Success"
+        "SAVED":"Success,robot will restart in 3s"
     },
     "DEMOEN":{
         "SHOW":"Show",
@@ -83,8 +83,13 @@
         "FOLLOWLINE":"FollowLine",
         "GPTDRAW":"GPTDraw",
         "GPTREC":"GPTRec",
-        "GPTCMD":"RobotGPT",
+        "GPTCMD":"EI",
         "GPTFREE":"Q&A",
-        "XIAOZHI":"XIAOZHI"
+        "XIAOZHI":"XIAOZHI",
+        "CATCH":"Ball",
+        "JOYSTICK":"Handle",
+        "FOLLOWLINE":"Line",
+        "AGENT":"Agent"
+        
     }
 }

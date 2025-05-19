@@ -83,7 +83,9 @@
         "GPTREC":"看图生文",
         "GPTCMD":"具身智能",
         "GPTFREE":"自由问答",
-        "XIAOZHI":"小智"
+        "XIAOZHI":"互动小智",
+      	"AGENT":"智能体",
+        "JOYSTICK":"手柄控制"
 
     }
 }

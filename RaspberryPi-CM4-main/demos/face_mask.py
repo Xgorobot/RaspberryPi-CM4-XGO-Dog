@@ -135,9 +135,9 @@ with mp_face_mesh.FaceMesh(
                 roll = round(roll/6)
             else:
                 roll = roll
-        print("pitch,yaw,roll",pitch,yaw,roll)
+        print("pitch,yaw,roll",pitch,-yaw,roll)
         print(fm[2])
-        dog.attitude(['p','y','r'],[pitch,yaw,roll])
+        dog.attitude(['p','y','r'],[pitch,-yaw,roll])
     else:
       pass
     b,g,r = cv2.split(image)
