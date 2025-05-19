@@ -1,0 +1,84 @@
+{
+    "url": "https://api.tenclass.net/xiaozhi/ota/",
+    "headers": {
+        "Activation-Version": "1",
+        "Device-Id": "2c:cf:67:c7:35:d8",
+        "Client-Id": "a18610fe-a1cc-4444-b455-b3a1b7103177",
+        "Content-Type": "application/json",
+        "User-Agent": "lc-esp32-s3/xiaozhi-1.6.0",
+        "Accept-Language": "zh-CN"
+    },
+    "payload": {
+        "version": 2,
+        "flash_size": 16777216,
+        "psram_size": 8388608,
+        "minimum_free_heap_size": 7265024,
+        "mac_address": "2c:cf:67:c7:35:d8",
+        "uuid": "a18610fe-a1cc-4444-b455-b3a1b7103177",
+        "chip_model_name": "esp32s3",
+        "chip_info": {
+            "model": 9,
+            "cores": 2,
+            "revision": 0,
+            "features": 20
+        },
+        "application": {
+            "name": "xiaozhi",
+            "version": "1.6.0",
+            "compile_time": "2025-4-16T12:00:00Z",
+            "idf_version": "v5.3.2"
+        },
+        "partition_table": [
+            {
+                "label": "nvs",
+                "type": 1,
+                "subtype": 2,
+                "address": 36864,
+                "size": 24576
+            },
+            {
+                "label": "otadata",
+                "type": 1,
+                "subtype": 0,
+                "address": 61440,
+                "size": 8192
+            },
+            {
+                "label": "app0",
+                "type": 0,
+                "subtype": 0,
+                "address": 65536,
+                "size": 1966080
+            },
+            {
+                "label": "app1",
+                "type": 0,
+                "subtype": 0,
+                "address": 2031616,
+                "size": 1966080
+            },
+            {
+                "label": "spiffs",
+                "type": 1,
+                "subtype": 130,
+                "address": 3997696,
+                "size": 1966080
+            }
+        ],
+        "ota": {
+            "label": "app0"
+        },
+        "board": {
+            "type": "lc-esp32-s3",
+            "name": "立创ESP32-S3开发板",
+            "features": [
+                "wifi",
+                "ble",
+                "psram",
+                "octal_flash"
+            ],
+            "ip": "172.20.10.5",
+            "mac": "2c:cf:67:c7:35:d8"
+        }
+    }
+}

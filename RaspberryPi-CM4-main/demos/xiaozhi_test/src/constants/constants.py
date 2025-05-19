@@ -1,6 +1,6 @@
 from src.utils.config_manager import ConfigManager
 config = ConfigManager.get_instance()
-
+import logging
 
 class ListeningMode:
     """监听模式"""

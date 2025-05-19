@@ -49,22 +49,23 @@ MENU_ITEMS = [
         ("network", "2vision", "network", la["DEMOEN"]["NETWORK"]),
         ("xiaozhi","3vision","xiaozhi",la["DEMOEN"]["XIAOZHI"]),
         ("speech", "4voice", "speech", la["DEMOEN"]["SPEECH"]),
-        ("ei", "5voice", "ei", la["DEMOEN"]["GPTCMD"]),
-        ("dog_Joystick", "6voice", "dog_Joystick", la["DEMOEN"]["JOYSTICK"]),
-        ("face_mask", "7vision", "face_mask", la["DEMOEN"]["MASK"]),
-        ("face_decetion", "8vision", "face_decetion", la["DEMOEN"]["FACETRACK"]),
-        ("hands", "9vision", "hands", la["DEMOEN"]["HANDS"]),
-        ("height", "10vision", "handh", la["DEMOEN"]["HEIGHT"]),
-        ("pose", "11vision", "pose_dog", la["DEMOEN"]["POSE"]),
-        ("color", "12vision", "color", la["DEMOEN"]["COLOR"]),
-        ("qrcode", "13vision", "qrcode", la["DEMOEN"]["QRCODE"]),
-        ("ball", "14vision", "ball", la["DEMOEN"]["BALL"]),
-        ("follow_line", "15vision", "follow_line", la["DEMOEN"]["LINE"]),
-        ("group", "16vision", "group", la["DEMOEN"]["GROUP"]),
-        ("wifi_set", "17vision", "wifi_set", la["DEMOEN"]["WIFISET"]),
-        ("language", "18vision", "language", la["DEMOEN"]["LANGUAGE"]),
-        ("volume", "19vision", "volume", la["DEMOEN"]["VOLUME"]),
-        ("device", "120vision", "device", la["DEMOEN"]["DEVICE"])
+        ("gpt_cmd", "5vision", "gpt_cmd", la["DEMOEN"]["GPTCMD"]),
+        ("follow_line", "6vision", "follow_line", la["DEMOEN"]["FOLLOWLINE"]),
+        ("agent", "7vision", "agent", la["DEMOEN"]["AGENT"]),
+        ("ball_catch", "8vision", "ball_catch", la["DEMOEN"]["CATCH"]),
+        ("dog_Joystick", "9vision", "dog_Joystick", la["DEMOEN"]["JOYSTICK"]),
+        ("face_mask", "10vision", "face_mask", la["DEMOEN"]["MASK"]),
+        ("face_decetion", "11vision", "face_decetion", la["DEMOEN"]["FACETRACK"]),
+        ("hands", "12vision", "hands", la["DEMOEN"]["HANDS"]),
+        ("height", "13vision", "handh", la["DEMOEN"]["HEIGHT"]),
+        ("pose", "14vision", "pose_dog", la["DEMOEN"]["POSE"]),
+        ("color", "15vision", "color", la["DEMOEN"]["COLOR"]),
+        ("qrcode", "16vision", "qrcode", la["DEMOEN"]["QRCODE"]),
+        ("group", "17vision", "group", la["DEMOEN"]["GROUP"]),
+        ("wifi_set", "18vision", "wifi_set", la["DEMOEN"]["WIFISET"]),
+        ("language", "19vision", "language", la["DEMOEN"]["LANGUAGE"]),
+        ("volume", "20vision", "volume", la["DEMOEN"]["VOLUME"]),
+        ("device", "21vision", "device", la["DEMOEN"]["DEVICE"])
     ]
 
 SELECT_BOX = [80, 68]
@@ -383,7 +384,7 @@ while True:
             print("Running: " + MENU_ITEMS[MENU_CURRENT_SELECT][2])
             draw_title_open()
             if MENU_ITEMS[MENU_CURRENT_SELECT][2] == "dog_show":
-                import demos.dog_show          
+                import demos.dog_show
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "face_mask":
                 os.system("python3 ./demos/face_mask.py")
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "hands":
@@ -393,13 +394,7 @@ while True:
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "qrcode":
                 os.system("python3 ./demos/qrcode.py")
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "speech":
-                result_la = language()
-                if result_la == "cn":
-                    print("la is cn")
-                    os.system("python3 ./demos/speechCn/speech.py")
-                elif result_la == "en":
-                    print("la is en")
-                    os.system("python3 ./demos/speechEn/speech.py")
+                os.system("python3 ./demos/speech/speech.py")
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "handh":
                 os.system("python3 ./demos/hp.py")
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "color":
@@ -420,12 +415,14 @@ while True:
                 os.system("python3 ./demos/pose_dog.py")
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "group":
                 os.system("python3 ./demos/group.py")
-            elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "ball":
-                os.system("python3 ./demos/ball.py")
+            elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "gpt_cmd":
+                os.system("python3 ./demos/speech/ei.py")
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "follow_line":
                 os.system("python3 ./demos/follow_line.py")
-            elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "ei":
-                os.system("python3 ./demos/EI/coze.py")
+            elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "agent":
+                os.system("python3 ./demos/speech/coze.py")
+            elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "ball_catch":
+                os.system("python3 ./demos/ball.py")
             elif MENU_ITEMS[MENU_CURRENT_SELECT][2] == "dog_Joystick":
                 os.system("python3 ./demos/dog_Joystick.py")
             print("program done")

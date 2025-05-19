@@ -1,9 +1,6 @@
 import RPi.GPIO as GPIO
 import time,os
-import spidev as SPI
-from PIL import Image, ImageDraw, ImageFont
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
+
 class Button:
     def __init__(self):
         self.key1=24
@@ -70,5 +67,3 @@ def language():
         result_la = language.strip()
         print(result_la)
     return result_la
-
-

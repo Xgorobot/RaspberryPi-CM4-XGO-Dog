@@ -12,7 +12,6 @@ import spidev as SPI
 from PIL import Image, ImageDraw, ImageFont
 from xgolib import XGO
 import cv2
-from picamera2 import Picamera2
 from subprocess import Popen
 from uiutils import dog, draw, display, Button,language
 import sys, time
@@ -32,9 +31,10 @@ draw = ImageDraw.Draw(splash)
 display.ShowImage(splash)
 
 font = cv2.FONT_HERSHEY_SIMPLEX
-cap=cv2.VideoCapture(0)
-cap.set(3,320)
-cap.set(4,240)
+cap = cv2.VideoCapture(0)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
 print("摄像头初始化完毕")
 fm = dog.read_firmware()
 if fm[0] == 'M':
@@ -76,6 +76,16 @@ def catch_arm(dog):
     dog.arm_polar(200, 130)
     time.sleep(2)
     dog.claw(245)
+    time.sleep(1)
+    dog.arm_polar(90, 100)
+
+def down_arm(dog):
+    dog.translation('z', 10)
+    dog.attitude('p', 15)
+    time.sleep(1)
+    dog.arm_polar(200, 130)
+    time.sleep(2)
+    dog.claw(15)
     time.sleep(1)
     dog.arm_polar(90, 100)
 
@@ -149,13 +159,13 @@ def Image_Processing(dog, a, mintime_yaw, mintime_x, cap, xdistance=22, x_center
 
     def color_recognize(a: str):
         if a == "blue":
-            lower_blue = np.array([100, 100, 80])
-            upper_blue = np.array([95, 255, 255])
+            lower_blue = np.array([90, 50, 50])
+            upper_blue = np.array([130, 255, 255])
             mask = cv2.inRange(hsv, lower_blue, upper_blue)
             return mask
         elif a == "green":
-            lower_green = np.array([25, 80, 60])
-            upper_green = np.array([85, 255, 255])
+            lower_green = np.array([40, 60, 75])
+            upper_green = np.array([77, 255, 255])
             mask = cv2.inRange(hsv, lower_green, upper_green)
             return mask
         elif a == "red":
@@ -233,7 +243,6 @@ def Image_Processing(dog, a, mintime_yaw, mintime_x, cap, xdistance=22, x_center
                 turn_time = abs(5 * yaw_err) / 8 + mintime_yaw
             else:
                 run_time = mintime_x + 0.3
-            x_distance = 20  # 如果夹球时距离远，需要减小x_distance
 
         else:
             if abs(mx - x_center) > 25:
@@ -247,9 +256,9 @@ def Image_Processing(dog, a, mintime_yaw, mintime_x, cap, xdistance=22, x_center
             else:
                 run_time = mintime_x + 0.2
 
-            x_distance = xdistance  # 如果夹球时距离远，需要减小x_distance
-            y_1 = 20
-            y_2 = 25
+        x_distance = xdistance  # 如果夹球时距离远，需要减小x_distance
+        y_1 = 20
+        y_2 = 25
         if distance < x_distance and -y_1 / distance <= yaw_err <= y_1 / distance:  # distance控制距离球的前后，yaw_err控制球的左右，需要根据每台xgo，具体微调一下抓球的位置
             print("满足条件一抓取")
             dog.attitude('y', 5 * yaw_err)
@@ -480,14 +489,14 @@ while True:
                 dog.translation('y', 0)
                 dog.attitude('y', 0)
                 dog.attitude('p', 0)
-                cap.release()
+                down_arm(dog)
+                time.sleep(2)
                 break
             if button.press_b():  # B键退出抓取模式
                 print("退出抓取模式")
                 break
             time.sleep(0.1)
-        if stop == 0:
-            break
+
 
 cap.release()
 dog.reset()

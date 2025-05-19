@@ -119,7 +119,7 @@ class WebsocketProtocol(Protocol):
         super().__init__()
         # 获取配置管理器实例
         self.config = ConfigManager.get_instance()
-        self.websocket = None
+        self.websocketwebsocket = None
         self.connected = False
         self.hello_received = None  # 初始化时先设为 None
         self.WEBSOCKET_URL = self.config.get_config("SYSTEM_OPTIONS.NETWORK.WEBSOCKET_URL")

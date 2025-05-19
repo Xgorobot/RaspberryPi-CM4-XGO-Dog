@@ -1,17 +1,6 @@
 #!/usr/bin/env python3
 # coding=utf-8
-'''
-X：Y
-Y：L1
-RK1_LEFT_RIGHT：L2
-L1:SELECT
-L2:R2
-R1：START
-R2:BTN_RK1
-SELECT:BTN_RK2
-START/exit/menu：empty
 
-'''
 import os, struct, sys
 from xgolib import XGO
 import time

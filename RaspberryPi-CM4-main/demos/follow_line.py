@@ -191,12 +191,12 @@ class LineDetect:
         :param point_y: 检测到的圆形的y坐标
         :param radius: 检测到的圆形的半径
         """
-        [z_Pid, _] = self.PID_controller.update([(point_x - 150), 0])  #如果狗的运动在线的左边，需要调小150，反之增大。
+        [z_Pid, _] = self.PID_controller.update([(point_x - 160), 0])  #如果狗的运动在线的左边，需要调小150，反之增大。
         if self.dog_type == 'L':
             runtime_x = 0.2
-            runtime_x += 0.02*abs(int(z_Pid))
-            runtime_x = min(abs(runtime_x),0.8)
-            turn_speed = int(min(1.1 * abs(z_Pid), 18))
+            runtime_x += 0.05*abs(int(z_Pid))
+            runtime_x = min(abs(runtime_x),0.9)
+            turn_speed = int(max(min(5 * abs(z_Pid), 48), 50))
         else:
             runtime_x = 0.3
             runtime_x += 0.02*abs(int(z_Pid))
@@ -205,13 +205,13 @@ class LineDetect:
         if abs(z_Pid) < 8:  # 当转向角度较小时，前进
             self.dog.turn(0)
             # self.dog.gait_type(mode)
-            self.dog.move_x(8)
+            self.dog.move_x(18)
         elif abs(z_Pid)>=8:
             fuhao = abs(z_Pid)/z_Pid
             turn_speed = fuhao * turn_speed
             self.dog.turn(turn_speed)
-            run_speed = 2
-            logging.warning(f'转向角{z_Pid},转向速度{fuhao * int(min(1.1 * abs(z_Pid), 18))},前进速度{run_speed},运动调整时间{runtime_x}')
+            run_speed = 15
+            logging.warning(f'转向角{z_Pid},转向速度{turn_speed},前进速度{run_speed},运动调整时间{runtime_x}')
             self.dog.move_x(run_speed)
             time.sleep(runtime_x)
         else:
@@ -239,6 +239,7 @@ class LineDetect:
             self.dog_type = 'L'
         self.dog.stop()
         self.dog.pace('normal')
+        self.dog.gait_type("slow_trot")
         self.dog.translation('z', 75)
         self.dog.attitude('p', 15)
         time.sleep(2)
@@ -299,8 +300,9 @@ class LineDetect:
 if __name__ == '__main__':
     font = cv.FONT_HERSHEY_SIMPLEX
     cap = cv.VideoCapture(0)
-    cap.set(3, 320)
-    cap.set(4, 240)
+    cap.set(cv.CAP_PROP_FRAME_WIDTH, 320)
+    cap.set(cv.CAP_PROP_FRAME_HEIGHT, 240)
+    cap.set(cv.CAP_PROP_FOURCC, cv.VideoWriter_fourcc('M', 'J', 'P', 'G'))
     print("摄像头初始化完毕")
     line_detect = LineDetect()
 

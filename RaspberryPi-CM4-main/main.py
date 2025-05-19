@@ -40,7 +40,7 @@ def update_status():
     if is_online:
         draw.bitmap((10, 0), wifiy)
     else:
-        draw.rectangle((10, 0, 50, 40), fill=0)
+        draw.rectangle((10, 0, 50, 40), fill=(15, 21, 46))
 
 # Main Program
 def main_program():

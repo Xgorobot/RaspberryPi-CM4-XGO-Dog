@@ -83,12 +83,13 @@
         "FOLLOWLINE":"FollowLine",
         "GPTDRAW":"GPTDraw",
         "GPTREC":"GPTRec",
-        "GPTCMD":"RobotGPT",
+        "GPTCMD":"EI",
         "GPTFREE":"Q&A",
         "XIAOZHI":"XIAOZHI",
-        "BALL":"BALL",
+        "CATCH":"Ball",
         "JOYSTICK":"Handle",
-        "LINE":"Linepatrol"
+        "FOLLOWLINE":"Line",
+        "AGENT":"Agent"
         
     }
 }

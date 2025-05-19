@@ -1,11 +1,22 @@
 # vis
 from PIL import Image, ImageDraw, ImageFont
 import xgoscreen.LCD_2inch as LCD_2inch
+from xgolib import XGO
+
+dog = XGO(port='/dev/ttyAMA0', version="xgolite")
+
+from src.key import language
+la=language()
+print(la)
 splash_theme_color = (15, 21, 46)
 # Display Init
 display = LCD_2inch.LCD_2inch()
 display.clear()
-background_image_path = "/home/pi/RaspberryPi-CM4-main/demos/xiaozhi_test/src/xiaozhi.png"  # 替换为你的图片路径
+if la=="cn":
+  background_image_path = "/home/pi/RaspberryPi-CM4-main/demos/xiaozhi_test/src/xiaozhi_cn.png"  # 替换为你的图片路径
+else:
+  background_image_path = "/home/pi/RaspberryPi-CM4-main/demos/xiaozhi_test/src/xiaozhi_en.png"  # 替换为你的图片路径
+
 splash = Image.open(background_image_path)
 draw = ImageDraw.Draw(splash)
 display.ShowImage(splash)
@@ -205,6 +216,7 @@ class CliDisplay(BaseDisplay):
                             self.auto_callback()
                     elif self.button.press_b():
                         self.logger.info("左下键被按下，触发退出")
+                        dog.reset()
                         self.on_close()  # 直接调用关闭逻辑
                         break  # 退出循环（因self.running会被设为False）
                     elif self.button.press_d():
@@ -252,17 +264,24 @@ class CliDisplay(BaseDisplay):
                     rectangle_height = 30
                     draw.rectangle((rectangle_x, rectangle_y, rectangle_x + rectangle_width, rectangle_y + rectangle_height), fill=color)
                     font2 = ImageFont.truetype("/home/pi/model/msyh.ttc", 16)
-                    draw.text((rectangle_x + 70, rectangle_y + 5), '等待唤醒', fill=text_color, font=font2)
+                    if la=="cn":
+                      draw.text((rectangle_x + 70, rectangle_y + 5), '等待唤醒', fill=text_color, font=font2)
+                    else:
+                      draw.text((rectangle_x + 9, rectangle_y + 5), 'Waiting to be awakened', fill=text_color, font=font2)
                     rectangle_x = (display.width - 120) // 2  # 矩形条居中的x坐标
                     rectangle_y = 100  # 矩形条y坐标
                     rectangle_width = 200
                     rectangle_height = 100
                     draw.rectangle((rectangle_x, rectangle_y, rectangle_x + rectangle_width, rectangle_y + rectangle_height), fill=gray_color)
+                    if la=="cn":
+                      text1="请说“你好,lulu”或者手动唤醒"
+                    else:
+                      text1="Please say 'Hi, Lulu' or  wake up manually."
                     lcd_draw_string(
                     draw,
                     x=70,
                     y=105,
-                    text="请说“你好,小智”或者手动唤醒",
+                    text=text1,
                     color=(255, 255, 255),
                     font_size=16,
                     max_width=190,
@@ -282,7 +301,10 @@ class CliDisplay(BaseDisplay):
                     rectangle_height = 30
                     draw.rectangle((rectangle_x, rectangle_y, rectangle_x + rectangle_width, rectangle_y + rectangle_height), fill=color)
                     font2 = ImageFont.truetype("/home/pi/model/msyh.ttc", 16)
-                    draw.text((rectangle_x + 80, rectangle_y + 5), "说话中", fill=text_color, font=font2)
+                    if la=="cn":
+                      draw.text((rectangle_x + 80, rectangle_y + 5), "说话中", fill=text_color, font=font2)
+                    else:
+                      draw.text((rectangle_x + 60, rectangle_y + 5), "In speaking", fill=text_color, font=font2)
                     rectangle_x = (display.width - 120) // 2  # 矩形条居中的x坐标
                     rectangle_y = 100  # 矩形条y坐标
                     rectangle_width = 200
@@ -313,17 +335,24 @@ class CliDisplay(BaseDisplay):
                     rectangle_height = 30
                     draw.rectangle((rectangle_x, rectangle_y, rectangle_x + rectangle_width, rectangle_y + rectangle_height), fill=color)
                     font2 = ImageFont.truetype("/home/pi/model/msyh.ttc", 16)
-                    draw.text((rectangle_x + 80, rectangle_y + 5), "连接中", fill=text_color, font=font2)
+                    if la=="cn":
+                      draw.text((rectangle_x + 80, rectangle_y + 5), "连接中", fill=text_color, font=font2)
+                    else:
+                      draw.text((rectangle_x + 65, rectangle_y + 5), "Connecting", fill=text_color, font=font2)
                     rectangle_x = (display.width - 120) // 2  # 矩形条居中的x坐标
                     rectangle_y = 100  # 矩形条y坐标
                     rectangle_width = 200
                     rectangle_height = 100
                     draw.rectangle((rectangle_x, rectangle_y, rectangle_x + rectangle_width, rectangle_y + rectangle_height), fill=gray_color)
+                    if la=="cn":
+                      text2="正在连接云端服务器"
+                    else:
+                      text2="Connecting to the cloud server"
                     lcd_draw_string(
                     draw,
                     x=70,
                     y=105,
-                    text="正在连接云端服务器",
+                    text=text2,
                     color=(255, 255, 255),
                     font_size=16,
                     max_width=190,
@@ -343,17 +372,24 @@ class CliDisplay(BaseDisplay):
                     rectangle_height = 30
                     draw.rectangle((rectangle_x, rectangle_y, rectangle_x + rectangle_width, rectangle_y + rectangle_height), fill=color)
                     font2 = ImageFont.truetype("/home/pi/model/msyh.ttc", 16)
-                    draw.text((rectangle_x + 80, rectangle_y + 5), "聆听中", fill=text_color, font=font2)
+                    if la=="cn":
+                      draw.text((rectangle_x + 80, rectangle_y + 5), "聆听中", fill=text_color, font=font2)
+                    else:
+                      draw.text((rectangle_x + 70, rectangle_y + 5), "Listening", fill=text_color, font=font2)
                     rectangle_x = (display.width - 120) // 2  # 矩形条居中的x坐标
                     rectangle_y = 100  # 矩形条y坐标
                     rectangle_width = 200
                     rectangle_height = 100
                     draw.rectangle((rectangle_x, rectangle_y, rectangle_x + rectangle_width, rectangle_y + rectangle_height), fill=gray_color)
+                    if la=="cn":
+                      text3="聆听中,请说话"
+                    else:
+                      text3="If Xiaozhi doesn't answer in English, you can tell  him to speak English."
                     lcd_draw_string(
                     draw,
                     x=70,
                     y=105,
-                    text="聆听中,请说话",
+                    text=text3,
                     color=(255, 255, 255),
                     font_size=16,
                     max_width=190,
@@ -377,6 +413,7 @@ class CliDisplay(BaseDisplay):
         try:
             while self.running:
                 if self.button.press_b():
+                    dog = XGO(port='/dev/ttyAMA0', version="xgolite")
                     self.on_close()
                     break
                 elif self.button.press_a():

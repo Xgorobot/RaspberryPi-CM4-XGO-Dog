@@ -8,9 +8,9 @@
       "WEBSOCKET_ACCESS_TOKEN": "test-token",
       "MQTT_INFO": {
         "endpoint": "mqtt.xiaozhi.me",
-        "client_id": "GID_test@@@2c_cf_67_c7_35_d8@@@undefined",
-        "username": "eyJpcCI6IjE4Mi4xMTguMjMzLjEzNiJ9",
-        "password": "EK31osSzd9PafOczefCawKam+y34CcD0r7w660h2VoA=",
+        "client_id": "GID_test@@@2c_cf_67_c7_35_d8@@@",
+        "username": "eyJpcCI6IjExMS4yMDEuNS4xNjUifQ==",
+        "password": "8yYrAHcyZKoi3i2slijPXTv8inPUUFTvBi4lFhemiJs=",
         "publish_topic": "device-server",
         "subscribe_topic": "null"
       }
@@ -20,8 +20,12 @@
     "USE_WAKE_WORD": true,
     "MODEL_PATH": "models/vosk-model-small-cn-0.22",
     "WAKE_WORDS": [
+      "露露",
+      "噜噜",
       "你好",
-      "小智"
+      "您好",
+      "嗨",
+      "哈喽"
     ]
   },
   "TEMPERATURE_SENSOR_MQTT_INFO": {
