@@ -1,5 +1,7 @@
 import platform
 
+#version=2.0
+ 
 play_command = None
 default_libpath = None
 

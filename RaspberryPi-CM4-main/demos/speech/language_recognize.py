@@ -1,20 +1,12 @@
 #coding=utf-8
-import asyncio
-import base64
-import gzip
-import hmac
-import json
-import logging
-import os
-import uuid
-import wave
+import asyncio,base64,gzip,hmac,json,uuid,wave,websockets
 from enum import Enum
 from hashlib import sha256
 from io import BytesIO
-from typing import List
 from urllib.parse import urlparse
-import time
-import websockets
+
+#version=2.0
+
 
 appid = "3984980014"
 token = "dME9mE6J4NWygiMFg6vhrqQ2S49TY2FX"

@@ -1,25 +1,16 @@
-import random
-import os, re
-import socket, sys, time
-import spidev as SPI
+import random,os,time,pyaudio,threading,requests,logging
 import xgoscreen.LCD_2inch as LCD_2inch
 from xgolib import XGO
 from PIL import Image, ImageDraw, ImageFont
-import threading
-import json, base64
-import subprocess
-import pyaudio
-import wave
-import numpy as np
-from scipy import fftpack
-from datetime import datetime
 from key import Button
-import requests
-from audio2 import start_recording
+from audio_ei import start_recording
 from language_recognize import test_one
-from doubao2 import model_output
-import logging
+from doubao_ei import model_output
 from key import language
+from auto_platform import AudiostreamSource
+
+#version=2.0
+
 la=language()
 SPLASH_COLOR = (15, 21, 46)
 FONT_PATH = "/home/pi/model/msyh.ttc"
@@ -40,8 +31,7 @@ ACTION_MAP = {
     "Wave": (15, 6),
     "Beg": (17, 3)
 }
-import pyaudio
-from auto_platform import AudiostreamSource
+
 
 CHUNK = 1024
 FORMAT = pyaudio.paInt16
@@ -312,22 +302,33 @@ class GPTCMD:
         return False
 
     def check_network(self):
-        try:
-            requests.get(TEST_NETWORK_URL, timeout=2)
-            print("Net is connection")
-            return True
-        except:
-            print("Net is unconnection")
-            return False
+        max_attempts = 5
+        attempt = 0
+        
+        while attempt < max_attempts:
+            try:
+                requests.get(TEST_NETWORK_URL, timeout=1)
+                print("Net is connected")
+                self.network_available = True
+                return True
+            except:
+                print(f"Network connection attempt {attempt + 1} failed")
+                attempt += 1
+                time.sleep(1)
+        
+        print("Network connection failed after 5 attempts")
+        if la == "cn":
+            self.show_message("网络未连接", color=(255, 0, 0))
+        else:
+            self.show_message("Network not connected", color=(255, 0, 0))
+        return False
 
     def run(self):
         if not self.check_network():
-            print("网络未连接")
-            if la=="cn":
-              self.show_message("网络未连接", color=(255, 0, 0))
-            else:
-              self.show_message("The network is not connected.", color=(255, 0, 0))
+            while True:
+                time.sleep(1)
             return
+            
         if la=="cn":
           self.show_message("正在启动，请稍后", color=(255, 255, 255))
         else:
@@ -433,12 +434,6 @@ class GPTCMD:
                 time.sleep(2)
                 continue
 
-            # except KeyboardInterrupt:
-            #     print("程序终止")
-            #     break
-            # except Exception as e:
-            #     print(f"发生错误: {e}")
-            #     continue
 
 
 if __name__ == "__main__":

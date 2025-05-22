@@ -1,6 +1,8 @@
 import RPi.GPIO as GPIO
 import time,os
 
+#version=2.0
+
 class Button:
     def __init__(self):
         self.key1=24

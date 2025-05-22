@@ -1,23 +1,16 @@
-import os, re
-import socket, sys, time
-import spidev as SPI
+import os,time,threading,pyaudio,requests
 import xgoscreen.LCD_2inch as LCD_2inch
 from xgolib import XGO
 from PIL import Image, ImageDraw, ImageFont
-import threading
-import json, base64
-import subprocess
-import pyaudio
-import wave
 import numpy as np
-from scipy import fftpack
-from datetime import datetime
 from key import Button,language
-import requests
-from audio import start_recording 
+from audio_speech import start_recording 
 from language_recognize import test_one 
-from doubao import model_output
+from doubao_speech import model_output
 import logging
+
+#version=2.0
+
 la=language()
 SPLASH_COLOR = (15, 21, 46)
 FONT_PATH = "/home/pi/model/msyh.ttc"
@@ -46,7 +39,6 @@ CHANNELS = 1
 RATE = 16000
 class DogController:
     def __init__(self):
-
         self.display = LCD_2inch.LCD_2inch()
         self.display.Init()
         
@@ -59,6 +51,7 @@ class DogController:
         self.audio_stream = None
         self.stream_a = None
         self.p = None
+        self.network_available = False
         
         # 启动按键检测线程
         self._start_button_thread()
@@ -68,19 +61,22 @@ class DogController:
             while True:
                 if self.button.press_b():
                     try:
-                        self.audio_stream.stop()
-                        logging.warning('audio_stream kill')
+                        if self.audio_stream:
+                            self.audio_stream.stop()
+                            logging.warning('audio_stream kill')
                     except Exception as e:
                         logging.warning(e)
                     try:
-                        self.stream_a.stop_stream()
-                        self.stream_a.close()
-                        logging.warning("stream_a kill")
+                        if self.stream_a:
+                            self.stream_a.stop_stream()
+                            self.stream_a.close()
+                            logging.warning("stream_a kill")
                     except Exception as e:
                         logging.warning(e)
                     try:
-                        self.p.terminate()
-                        logging.warning("p terminate")
+                        if self.p:
+                            self.p.terminate()
+                            logging.warning("p terminate")
                     except:
                         pass
                     print("B键按下, 退出程序")
@@ -104,27 +100,38 @@ class DogController:
         return False
 
     def check_network(self):
-        try:
-            requests.get(TEST_NETWORK_URL, timeout=2)
-            print("Net is connection")
-            return True
-        except:
-            print("Net is unconnection")
-            return False
-            
+        max_attempts = 5
+        attempt = 0
+        
+        while attempt < max_attempts:
+            try:
+                requests.get(TEST_NETWORK_URL, timeout=1)
+                print("Net is connected")
+                self.network_available = True
+                return True
+            except:
+                print(f"Network connection attempt {attempt + 1} failed")
+                attempt += 1
+                time.sleep(1)
+        
+        print("Network connection failed after 5 attempts")
+        if la == "cn":
+            self.show_message("网络未连接", color=(255, 0, 0))
+        else:
+            self.show_message("Network not connected", color=(255, 0, 0))
+        return False
 
     def run(self):
         if not self.check_network():
-            print("网络未连接")
-            if la=="cn":
-              self.show_message("网络未连接", color=(255, 0, 0))
-            else:
-              self.show_message("Network not connected", color=(255, 0, 0))
+            while True:
+                time.sleep(1)
             return
-        if la=="cn":
-          self.show_message("正在启动，请稍后", color=(255, 255, 255))
+        
+        if la == "cn":
+            self.show_message("正在启动，请稍后", color=(255, 255, 255))
         else:
-          self.show_message("Starting up...", color=(255, 255, 255))
+            self.show_message("Starting up...", color=(255, 255, 255))
+            
         while True:
             try:
                 self.p = pyaudio.PyAudio()
@@ -158,10 +165,10 @@ class DogController:
                         break
                 
                 if not action_executed:
-                    if la=="cn":
-                      self.show_message("未识别指令")
+                    if la == "cn":
+                        self.show_message("未识别指令")
                     else:
-                      self.show_message("Unrecognized command")
+                        self.show_message("Unrecognized command")
                     print("未识别指令")
                     self.dog.reset()
                 

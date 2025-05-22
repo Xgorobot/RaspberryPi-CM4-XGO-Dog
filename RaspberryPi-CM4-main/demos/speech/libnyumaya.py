@@ -1,8 +1,10 @@
 from ctypes import c_void_p, c_size_t, c_float, c_int, c_uint8, c_int32
 from ctypes import cdll, POINTER, c_int16, c_char_p, c_bool, byref, pointer
 
-import sys
-import os
+import sys,os
+
+#version=2.0
+
 class AudioRecognition(object):
 
 	lib = None

@@ -1,5 +1,7 @@
-import sys
-import ast
+import sys,ast
+
+#version=2.0
+
 vosk_path = '/home/pi/.local/lib/python3.9/site-packages'
 if vosk_path not in sys.path:
     sys.path.append(vosk_path)

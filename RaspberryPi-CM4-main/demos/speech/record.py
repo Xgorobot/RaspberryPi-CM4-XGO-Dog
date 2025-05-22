@@ -1,12 +1,14 @@
 
-import subprocess
+import subprocess,sys
 
 from threading import Thread
-import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from ringbuffer import RingBuffer
+
+#version=2.0
+
 
 # Efficienly capture audio into a ringbuffer using arecord
 # This will only work for linux based systems
