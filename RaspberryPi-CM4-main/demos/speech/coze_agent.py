@@ -2,6 +2,10 @@ import sys,ast
 
 #version=2.0
 
+'''
+此功能的API可能失效，如果失效，可以自己去coze.com注册API
+'''
+
 vosk_path = '/home/pi/.local/lib/python3.9/site-packages'
 if vosk_path not in sys.path:
     sys.path.append(vosk_path)

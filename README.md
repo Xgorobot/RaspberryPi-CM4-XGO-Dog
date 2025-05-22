@@ -64,6 +64,9 @@ XGO-DOG一款具有十二自由度桌面级Al机器狗，背部搭载机械臂�
 4. 增加了 /RaspberryPi-CM4-main/demos/xiaozhi_test,小智实现具身智能与趣味对话的功能。
 5. 增加了 /RaspberryPi-CM4-main/demos/speech/ei.py,豆包实现具身智能的功能。
 6. 增加了 /RaspberryPi-CM4-main/demos/speech/coze.py,智能体实现具身智能的功能。
+- **特别提醒**
+1. 在 /RaspberryPi-CM4-main/demos/speech/coze.py,此功能的默认API有效期为30天，如果失效，需要使用自己账号进行创建API，具体创建过程参考语雀文档
+2. 每次使用小智、智能体、具身智能或语言识别功能后，系统需要 3~4 秒完成资源释放。在此期间，请勿立即再次打开这些功能中的任何一个，否则可能导致功能运行异常。
 
 ## 贡献
 欢迎贡献！我们欢迎任何建议、修复和功能增强。如果你有兴趣为这个项目贡献，可以按照以下步骤操作:  
