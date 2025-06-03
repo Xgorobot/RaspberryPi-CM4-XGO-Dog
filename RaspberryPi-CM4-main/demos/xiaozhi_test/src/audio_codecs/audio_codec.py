@@ -301,28 +301,69 @@ class AudioCodec:
     def play_audio(self):
         """处理并缓存音频数据，达到一定量后开始播放"""
         try:
-            # 如果还未达到最小播放缓存量，继续积累数据
+            # 固定音频配置（需根据实际情况修改）
+            SAMPLE_RATE = 48000  # Hz
+            CHANNELS = 2  # 声道数
+            MAX_FRAME_DURATION = 60  # ms，最大可能帧时长
+
+            # 计算单包最大PCM样本数（int16格式）
+            max_samples_per_packet = (SAMPLE_RATE * MAX_FRAME_DURATION) // 1000
+            max_pcm_bytes = max_samples_per_packet * CHANNELS * 2  # 转换为字节数
+
             if len(self.audio_buffer) < self._min_play_buffer_size:
                 if self.audio_decode_queue.empty():
                     return None
 
                 batch_size = min(self._batch_size, self.audio_decode_queue.qsize())
-
-                # 从队列中获取数据并解码
                 for _ in range(batch_size):
                     try:
                         opus_data = self.audio_decode_queue.get_nowait()
-                        # 解码为设定采样率的PCM数据
+                        packet_size = len(opus_data)
+
+                        # **关键修改**：使用固定最大PCM字节数作为输出帧大小
+                        output_frame_size = max_samples_per_packet  # 样本数，非字节数
+
+                        # 调用解码器，强制使用足够大的缓冲区
                         pcm_data = self.opus_decoder.decode(
                             opus_data,
-                            AudioConfig.OUTPUT_FRAME_SIZE,
+                            output_frame_size,  # 样本数（int16）
                             decode_fec=False
                         )
-                        self.audio_buffer.extend(pcm_data)
+
+                        if pcm_data:
+                            self.audio_buffer.extend(pcm_data)
+                        else:
+                            logger.warning(f"解码空数据，Opus包大小: {packet_size}")
+
                     except queue.Empty:
                         break
                     except Exception as e:
-                        logger.error(f"解码音频数据时出错: {e}")
+                        logger.error(f"解码错误: {e}. 包大小: {packet_size}, "
+                                     f"尝试的输出样本数: {output_frame_size}")
+
+                # try:
+        #     # 如果还未达到最小播放缓存量，继续积累数据
+        #     if len(self.audio_buffer) < self._min_play_buffer_size:
+        #         if self.audio_decode_queue.empty():
+        #             return None
+        #
+        #         batch_size = min(self._batch_size, self.audio_decode_queue.qsize())
+        #
+        #         # 从队列中获取数据并解码
+        #         for _ in range(batch_size):
+        #             try:
+        #                 opus_data = self.audio_decode_queue.get_nowait()
+        #                 # 解码为设定采样率的PCM数据
+        #                 pcm_data = self.opus_decoder.decode(
+        #                     opus_data,
+        #                     AudioConfig.OUTPUT_FRAME_SIZE,
+        #                     decode_fec=False
+        #                 )
+        #                 self.audio_buffer.extend(pcm_data)
+        #             except queue.Empty:
+        #                 break
+        #             except Exception as e:
+        #                 logger.error(f"解码音频数据时出错: {e}")
 
                 # 检查是否达到最小播放缓存量
                 if len(self.audio_buffer) < self._min_play_buffer_size:
