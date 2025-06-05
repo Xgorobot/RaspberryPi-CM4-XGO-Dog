@@ -9,8 +9,8 @@
       "MQTT_INFO": {
         "endpoint": "mqtt.xiaozhi.me",
         "client_id": "GID_test@@@2c_cf_67_c7_35_d8@@@",
-        "username": "eyJpcCI6IjExMS4yMDEuNS4xNjUifQ==",
-        "password": "8yYrAHcyZKoi3i2slijPXTv8inPUUFTvBi4lFhemiJs=",
+        "username": "eyJpcCI6IjEyNC4xMjYuOTguMTMwIn0=",
+        "password": "/PvmNLPB+F5+gbpC/ym1Dz6xZSJf1LjMzlzHiZTmnM8=",
         "publish_topic": "device-server",
         "subscribe_topic": "null"
       }
