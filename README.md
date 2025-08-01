@@ -2,6 +2,11 @@
 
 XGO-DOG，一个有趣的四足仿生机器狗。
 
+选择语言 / Select language:
+
+- [中文](#中文)
+- [English](#english)
+
 ## 目录
 
 - [项目简介](#项目简介)
