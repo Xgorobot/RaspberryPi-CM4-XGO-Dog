@@ -5,6 +5,7 @@ XGO-DOG，一个有趣的四足仿生机器狗。
 选择语言 / Select language:
 
 - [中文](#中文)
+  此文档是中文版本，若需要英文版本，请访问 [README.en.md](./README.en.md)。
 - [English](#english)
 
 ## 目录
