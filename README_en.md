@@ -2,10 +2,11 @@
 
 XGO-DOG, an interesting quadruped bionic robot dog.
 
-Select language / 选择语言:
+# Choose Language / 选择语言
 
-- [中文](#中文)
-- [English](#english)
+- [中文](README.md)
+- [English](#README_en.md)
+
 
 ## Table of Contents
 
