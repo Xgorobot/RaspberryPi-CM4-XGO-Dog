@@ -1,3 +1,8 @@
+# 选择语言 / Select Language
+
+- [中文](#README.md)
+- [English](README_en.md)
+
 - RaspberryPi-CM4-main: 主题程序文件夹。
 - xgoMusic: 示例程序所需的音乐。
 - xgoPicture: 示例程序所需的图片。
